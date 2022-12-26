@@ -341,6 +341,8 @@ const unsigned int cCRNHeaderMinSize = 62U;
 #include <stdlib.h>
 #ifdef WIN32
 #include <memory.h>
+#elif defined __APPLE__
+#include <malloc/malloc.h>
 #else
 #include <malloc.h>
 #endif
@@ -401,6 +403,8 @@ const uint32 cIntBits = 32U;
 typedef uint64 ptr_bits;
 #else
 #ifdef __x86_64__
+typedef uint64 ptr_bits;
+#elif defined __APPLE__
 typedef uint64 ptr_bits;
 #else
 typedef uint32 ptr_bits;
@@ -2350,7 +2354,7 @@ void *crnd_malloc(size_t size, size_t *pActual_size) {
 }
 
 void *crnd_realloc(void *p, size_t size, size_t *pActual_size, bool movable) {
-	if ((uint32) reinterpret_cast<ptr_bits>(p) & (CRND_MIN_ALLOC_ALIGNMENT - 1)) {
+	if ( reinterpret_cast<ptr_bits>(p) & (CRND_MIN_ALLOC_ALIGNMENT - 1)) {
 		crnd_mem_error("crnd_realloc: bad ptr");
 		return NULL;
 	}
@@ -2375,7 +2379,7 @@ void crnd_free(void *p) {
 	if (!p)
 		return;
 
-	if ((uint32) reinterpret_cast<ptr_bits>(p) & (CRND_MIN_ALLOC_ALIGNMENT - 1)) {
+	if ( reinterpret_cast<ptr_bits>(p) & (CRND_MIN_ALLOC_ALIGNMENT - 1)) {
 		crnd_mem_error("crnd_free: bad ptr");
 		return;
 	}
@@ -2387,7 +2391,7 @@ size_t crnd_msize(void *p) {
 	if (!p)
 		return 0;
 
-	if ((uint32) reinterpret_cast<ptr_bits>(p) & (CRND_MIN_ALLOC_ALIGNMENT - 1)) {
+	if ( reinterpret_cast<ptr_bits>(p) & (CRND_MIN_ALLOC_ALIGNMENT - 1)) {
 		crnd_mem_error("crnd_msize: bad ptr");
 		return 0;
 	}
